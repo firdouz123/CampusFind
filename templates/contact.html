@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Contact about {{ item['title'] }}{% endblock %}
+{% block content %}
+<section class="page-width contact-page">
+  <a class="back-link" href="{{ url_for('item_detail', item_id=item['id']) }}"><span aria-hidden="true">←</span> Back to item</a>
+  <div class="contact-layout">
+    <div class="contact-main">
+      <div class="eyebrow eyebrow-green"><span class="eyebrow-line"></span> A private note</div>
+      <h1>Help this item find its way.</h1>
+      <p class="contact-lead">Send a kind, clear message to the student who posted this report. Your note stays in CampusFind’s private inbox.</p>
+      <div class="contact-item-preview">
+        {% if item['image_filename'] %}<img src="{{ url_for('static', filename='uploads/' ~ item['image_filename']) }}" alt="">
+        {% else %}<span class="preview-placeholder" aria-hidden="true">CF</span>{% endif %}
+        <div><small>{{ item['category'] }} · {{ item['location'] }}</small><b>{{ item['title'] }}</b></div>
+      </div>
+      <form method="post" class="form-stack contact-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="form-field">
+          <span>Your message</span>
+          <textarea name="message" rows="6" minlength="10" maxlength="1200" placeholder="Hi! I think this might be mine because…" required>{{ request.form.get('message', '') }}</textarea>
+          <small class="field-hint"><span data-char-count="message">0</span> / 1,200 characters</small>
+        </label>
+        <button class="button button-primary" type="submit">Send private request <span aria-hidden="true">→</span></button>
+      </form>
+    </div>
+    <aside class="contact-sidebar">
+      <span class="privacy-lock" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="6" y="14" width="20" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 14V9a6 6 0 0 1 12 0v5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="20.5" r="1.5" fill="currentColor"/></svg></span>
+      <h2>Private by design.</h2>
+      <p>Your email address is not shared with the other student. They can reply through their CampusFind inbox.</p>
+      <div class="privacy-rule"></div>
+      <ul>
+        <li><span>✓</span> Your message is only visible to the two of you.</li>
+        <li><span>✓</span> You can keep the conversation on CampusFind.</li>
+        <li><span>✓</span> Never include your password or sensitive details.</li>
+      </ul>
+    </aside>
+  </div>
+</section>
+{% endblock %}

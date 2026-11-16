@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Private inbox{% endblock %}
+{% block content %}
+<section class="page-width inbox-page">
+  <div class="dashboard-heading">
+    <div>
+      <div class="eyebrow eyebrow-green"><span class="eyebrow-line"></span> Just between you</div>
+      <h1>Private inbox<span class="heading-period">.</span></h1>
+      <p>Messages about items are visible only to the students involved.</p>
+    </div>
+    <a class="button button-quiet" href="{{ url_for('my_reports') }}">My reports</a>
+  </div>
+  <div class="inbox-columns">
+    <section class="inbox-column">
+      <div class="inbox-column-heading"><div><h2>Received</h2><p>Messages about your reports</p></div><span class="inbox-count">{{ requests_received|length }}</span></div>
+      {% for message in requests_received %}
+        <article class="message-card">
+          <div class="message-head"><span class="message-avatar">{{ message['other_name'][0]|upper }}</span><div><b>{{ message['other_name'] }}</b><small>About <a href="{{ url_for('item_detail', item_id=message['item_id']) }}">{{ message['item_title'] }}</a></small></div><span class="message-state {% if message['reply'] %}state-replied{% endif %}">{{ 'Replied' if message['reply'] else 'New request' }}</span></div>
+          <div class="message-bubble"><small>Message</small><p>{{ message['message'] }}</p></div>
+          {% if message['reply'] %}
+            <div class="message-reply"><small>Your reply</small><p>{{ message['reply'] }}</p></div>
+          {% else %}
+            <form method="post" action="{{ url_for('reply_to_contact', contact_id=message['id']) }}" class="reply-form">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <label class="form-field"><span>Reply privately</span><textarea name="reply" rows="3" minlength="10" maxlength="1200" placeholder="Write a kind reply…" required></textarea></label>
+              <button class="button button-primary button-small" type="submit">Send reply <span aria-hidden="true">→</span></button>
+            </form>
+          {% endif %}
+          <div class="message-time">Sent {{ message['created_at'] }}</div>
+        </article>
+      {% else %}
+        <div class="inbox-empty"><span class="inbox-empty-icon" aria-hidden="true">↙</span><b>Nothing received yet.</b><p>New contact requests about your reports will show up here.</p></div>
+      {% endfor %}
+    </section>
+    <section class="inbox-column">
+      <div class="inbox-column-heading"><div><h2>Sent</h2><p>Your contact requests</p></div><span class="inbox-count inbox-count-soft">{{ requests_sent|length }}</span></div>
+      {% for message in requests_sent %}
+        <article class="message-card sent-message-card">
+          <div class="message-head"><span class="message-avatar message-avatar-blue">{{ message['other_name'][0]|upper }}</span><div><b>{{ message['other_name'] }}</b><small>About <a href="{{ url_for('item_detail', item_id=message['item_id']) }}">{{ message['item_title'] }}</a></small></div><span class="message-state {% if message['reply'] %}state-replied{% endif %}">{{ 'Reply received' if message['reply'] else 'Waiting' }}</span></div>
+          <div class="message-bubble"><small>Your message</small><p>{{ message['message'] }}</p></div>
+          {% if message['reply'] %}<div class="message-reply"><small>Reply</small><p>{{ message['reply'] }}</p></div>{% endif %}
+          <div class="message-time">Sent {{ message['created_at'] }}</div>
+        </article>
+      {% else %}
+        <div class="inbox-empty inbox-empty-soft"><span class="inbox-empty-icon" aria-hidden="true">↗</span><b>No messages sent yet.</b><p>Contact a student from any active item report.</p><a class="text-link" href="{{ url_for('home') }}">Browse reports <span aria-hidden="true">→</span></a></div>
+      {% endfor %}
+    </section>
+  </div>
+</section>
+{% endblock %}

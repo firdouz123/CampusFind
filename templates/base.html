@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#F5F0F7">
+    <title>{% block title %}CampusFind{% endblock %} · CampusFind</title>
+    <meta name="description" content="A thoughtful, private way to reunite campus items with their owners.">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="nav-shell">
+        <a class="brand" href="{{ url_for('home') }}" aria-label="CampusFind home">
+          <span class="brand-mark">
+            <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3.2 24 8.4v11.2L14 24.8 4 19.6V8.4L14 3.2Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="m9 14.2 3.2 3.2 6.8-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span>Campus<span class="brand-accent">Find</span></span>
+        </a>
+        <button class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="primary-nav" id="primary-nav" aria-label="Main navigation">
+          <a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}is-current{% endif %}">Browse items</a>
+          {% if g.user %}
+            <a href="{{ url_for('my_reports') }}" class="{% if request.endpoint == 'my_reports' %}is-current{% endif %}">My reports</a>
+            <a href="{{ url_for('inbox') }}" class="{% if request.endpoint == 'inbox' %}is-current{% endif %}">Inbox</a>
+            <a href="{{ url_for('account_recovery_code') }}" class="{% if request.endpoint == 'account_recovery_code' %}is-current{% endif %}">Security</a>
+            {% if g.user['role'] == 'admin' %}
+              <a href="{{ url_for('admin_dashboard') }}" class="{% if request.endpoint and request.endpoint.startswith('admin_') %}is-current{% endif %}">Admin</a>
+            {% endif %}
+            <span class="nav-user">{{ g.user['full_name'].split()[0] }}</span>
+            <form class="nav-logout" method="post" action="{{ url_for('logout') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="nav-link-button" type="submit">Sign out</button>
+            </form>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="{% if request.endpoint == 'login' %}is-current{% endif %}">Sign in</a>
+            <a class="button button-small button-primary nav-join" href="{{ url_for('register') }}">Join campus</a>
+          {% endif %}
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <div class="flash-stack" aria-live="polite">
+        {% if g.user and not user_has_recovery_code() and request.endpoint not in ['account_recovery_code', 'recovery_code_display'] %}
+          <div class="flash flash-security-alert">
+            <span class="flash-dot flash-dot-security" aria-hidden="true"></span>
+            <span><strong>Account Security:</strong> You haven’t set up a password recovery code yet. <a href="{{ url_for('account_recovery_code') }}" class="flash-security-link">Set up your recovery code</a> to ensure you never lose access.</span>
+          </div>
+        {% endif %}
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+          <div class="flash flash-{{ category }}">
+            <span class="flash-dot" aria-hidden="true"></span>
+            <span>{{ message }}</span>
+            <button type="button" class="flash-close" aria-label="Dismiss message">×</button>
+          </div>
+        {% endfor %}
+      </div>
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <a class="brand brand-footer" href="{{ url_for('home') }}">
+          <span class="brand-mark">
+            <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3.2 24 8.4v11.2L14 24.8 4 19.6V8.4L14 3.2Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="m9 14.2 3.2 3.2 6.8-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span>Campus<span class="brand-accent">Find</span></span>
+        </a>
+        <p>A little care goes a long way. Built for your campus community.</p>
+        <span class="footer-year">© {{ current_year }} CampusFind</span>
+      </div>
+    </footer>
+  </body>
+</html>

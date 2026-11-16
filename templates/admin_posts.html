@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Post moderation{% endblock %}
+{% block content %}
+<section class="page-width admin-page admin-manage-page">
+  <a class="back-link" href="{{ url_for('admin_dashboard') }}"><span aria-hidden="true">←</span> Admin dashboard</a>
+  <div class="dashboard-heading">
+    <div><div class="eyebrow eyebrow-violet"><span class="eyebrow-line"></span> Keep reports helpful</div><h1>Post moderation<span class="heading-period">.</span></h1><p>Hidden reports are not visible to students. Restore a post when it is ready to return.</p></div>
+    <span class="admin-only-pill"><span aria-hidden="true">◆</span> Admin access only</span>
+  </div>
+  <section class="admin-panel admin-table-panel">
+    {% if posts %}
+      <div class="table-scroll"><table class="admin-table">
+        <thead><tr><th>Report</th><th>Posted by</th><th>Status</th><th>Visibility</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for post in posts %}
+            <tr class="{% if post['is_hidden'] %}table-row-hidden{% endif %}">
+              <td><a class="table-post-title" href="{{ url_for('item_detail', item_id=post['id']) }}">{{ post['title'] }}</a><span class="table-subline">{{ post['kind']|title }} · {{ post['category'] }} · {{ post['location'] }}</span></td>
+              <td><b>{{ post['owner_name'] }}</b><span class="table-subline">{{ post['owner_email'] }}</span></td>
+              <td><span class="status-chip status-{{ post['status'] }}">{{ 'Returned' if post['status'] == 'returned' else ('Found' if post['status'] == 'found' else 'Still looking') }}</span></td>
+              <td><span class="visibility-label {% if post['is_hidden'] %}visibility-hidden{% endif %}"><i></i>{{ 'Hidden' if post['is_hidden'] else 'Visible' }}</span></td>
+              <td><form method="post" class="table-action-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="item_id" value="{{ post['id'] }}">
+                {% if post['is_hidden'] %}<button class="table-action table-restore" name="action" value="restore" type="submit">Restore</button>{% else %}<button class="table-action table-hide" name="action" value="hide" type="submit">Hide report</button>{% endif %}
+              </form></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table></div>
+    {% else %}
+      <div class="admin-empty">No reports to review yet.</div>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}

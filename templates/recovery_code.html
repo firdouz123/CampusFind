@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Save Your Recovery Code{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-backdrop"></div>
+  <section class="auth-card" style="max-width: 580px;">
+    <div class="auth-icon auth-icon-green" aria-hidden="true">
+      <svg viewBox="0 0 32 32" aria-hidden="true" style="width:24px;height:24px;display:inline-block;vertical-align:middle;"><path d="M16 4 25 8v7c0 6.1-3.8 10.7-9 13-5.2-2.3-9-6.9-9-13V8l9-4Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="m11.5 16 3 3 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+
+    <div class="eyebrow eyebrow-green"><span class="eyebrow-line"></span> Action Required · Save Immediately</div>
+
+    {% if is_new %}
+      <h1>Your account is ready!</h1>
+      <p class="auth-intro">Here is your private password recovery code. If you ever forget your password, you will need this code together with your email to recover your account.</p>
+    {% else %}
+      <h1>Your new recovery code.</h1>
+      <p class="auth-intro">A new recovery code has been generated. Any older code you had is now completely inactive.</p>
+    {% endif %}
+
+    <div class="alert-box alert-box-warning">
+      <div class="alert-box-title">
+        <span aria-hidden="true">⚠️</span> Important Security Notice
+      </div>
+      <p class="alert-box-text">
+        For your privacy and security, <strong>this recovery code is only shown once right now</strong>. Once you leave this page, it can never be displayed again because CampusFind only stores an encrypted hash. Please copy it or write it down in a safe, private place.
+      </p>
+    </div>
+
+    <div class="recovery-code-display-wrap">
+      <div class="recovery-code-label">Your Unique Recovery Code</div>
+      <div id="recoveryCodeBox" class="recovery-code-box">{{ recovery_code }}</div>
+      <button type="button" id="copyCodeBtn" class="button button-quiet button-small" style="display: inline-flex; align-items: center; gap: 8px;">
+        <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span id="copyBtnText">Copy Recovery Code</span>
+      </button>
+    </div>
+
+    <div style="margin-top: 1.75rem;">
+      <a href="{{ url_for('home') }}" class="button button-primary button-full" style="text-align: center; text-decoration: none;">
+        I Have Safely Saved My Code → Continue to CampusFind
+      </a>
+    </div>
+
+    <div class="auth-private" style="margin-top: 1.25rem;">
+      <span class="tiny-lock" aria-hidden="true">◆</span> You can replace your code anytime in Account Security after signing in.
+    </div>
+  </section>
+
+  <aside class="auth-aside auth-aside-green">
+    <div class="aside-orb"></div>
+    <div class="aside-quote-mark">“</div>
+    <blockquote>Safe by design.<br>No inbox required.</blockquote>
+    <p>Recovery codes protect your student account without relying on external email providers or verification links.</p>
+    <div class="aside-signature"><span class="aside-underline"></span> CampusFind Account Security</div>
+  </aside>
+</div>
+
+<script>
+  (function() {
+    var btn = document.getElementById('copyCodeBtn');
+    var textEl = document.getElementById('copyBtnText');
+    var code = document.getElementById('recoveryCodeBox').innerText.trim();
+
+    if (btn && code) {
+      btn.addEventListener('click', function() {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(code).then(function() {
+            textEl.innerText = 'Copied to Clipboard! ✓';
+            btn.style.background = '#EAF4EE';
+            btn.style.borderColor = '#276749';
+            setTimeout(function() {
+              textEl.innerText = 'Copy Recovery Code';
+              btn.style.background = '';
+              btn.style.borderColor = '';
+            }, 3000);
+          }).catch(function() {
+            fallbackCopy(code);
+          });
+        } else {
+          fallbackCopy(code);
+        }
+      });
+    }
+
+    function fallbackCopy(text) {
+      var textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        textEl.innerText = 'Copied! ✓';
+        setTimeout(function() { textEl.innerText = 'Copy Recovery Code'; }, 3000);
+      } catch (err) {
+        textEl.innerText = 'Please select and copy manually';
+      }
+      document.body.removeChild(textarea);
+    }
+  })();
+</script>
+{% endblock %}

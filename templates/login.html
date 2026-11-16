@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-backdrop"></div>
+  <section class="auth-card">
+    <a class="auth-back" href="{{ url_for('home') }}"><span aria-hidden="true">←</span> Back to browsing</a>
+    <div class="auth-icon auth-icon-blue">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4 25 8v7c0 6.1-3.8 10.7-9 13-5.2-2.3-9-6.9-9-13V8l9-4Z" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="m11.5 16 3 3 6-6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="eyebrow"><span class="eyebrow-line"></span> Your campus community</div>
+    <h1>Welcome back.</h1>
+    <p class="auth-intro">Sign in to check your reports or help reunite someone with a lost item.</p>
+    <form method="post" class="form-stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="form-field">
+        <span>Email address</span>
+        <input type="email" name="email" autocomplete="email" maxlength="254" placeholder="you@college.edu" required value="{{ request.form.get('email', '') }}">
+      </label>
+      <label class="form-field">
+        <span>Password</span>
+        <input type="password" name="password" autocomplete="current-password" required>
+      </label>
+      <button class="button button-primary button-full" type="submit">Sign in <span aria-hidden="true">→</span></button>
+    </form>
+    <p class="auth-switch">New to CampusFind? <a href="{{ url_for('register') }}">Create a student account</a></p>
+    <p class="auth-switch"><a href="{{ url_for('forgot_password') }}">Forgot Password?</a></p>
+    <div class="auth-private"><span class="tiny-lock" aria-hidden="true">◆</span> Your contact details are never shown on public reports.</div>
+  </section>
+  <aside class="auth-aside">
+    <div class="aside-orb"></div>
+    <div class="aside-quote-mark">“</div>
+    <blockquote>It started with a lost notebook.<br>It ended with a new friend.</blockquote>
+    <p>Small moments of kindness make a campus feel like home.</p>
+    <div class="aside-signature"><span class="aside-underline"></span> The CampusFind community</div>
+  </aside>
+</div>
+{% endblock %}

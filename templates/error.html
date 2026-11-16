@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · Something went wrong{% endblock %}
+{% block content %}
+<section class="page-width error-page">
+  <div class="error-orbit" aria-hidden="true"><span>{{ code }}</span></div>
+  <div class="eyebrow"><span class="eyebrow-line"></span> A small detour</div>
+  <h1>{{ message }}</h1>
+  <p>Try going back to the items page. If you think this is a mistake, ask a CampusFind administrator for help.</p>
+  <a class="button button-primary" href="{{ url_for('home') }}">Back to CampusFind <span aria-hidden="true">→</span></a>
+</section>
+{% endblock %}

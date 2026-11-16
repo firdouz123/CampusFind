@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Account management{% endblock %}
+{% block content %}
+<section class="page-width admin-page admin-manage-page">
+  <a class="back-link" href="{{ url_for('admin_dashboard') }}"><span aria-hidden="true">←</span> Admin dashboard</a>
+  <div class="dashboard-heading">
+    <div><div class="eyebrow eyebrow-violet"><span class="eyebrow-line"></span> Campus community</div><h1>Account management<span class="heading-period">.</span></h1><p>Review student accounts and temporarily restrict access when needed.</p></div>
+    <span class="admin-only-pill"><span aria-hidden="true">◆</span> Admin access only</span>
+  </div>
+  <section class="admin-panel admin-table-panel">
+    {% if members %}
+      <div class="table-scroll"><table class="admin-table">
+        <thead><tr><th>Student</th><th>Joined</th><th>Account</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for member in members %}
+            <tr class="{% if not member['is_active'] %}table-row-hidden{% endif %}">
+              <td><div class="member-cell"><span class="member-table-avatar">{{ member['full_name'][0]|upper }}</span><span><b>{{ member['full_name'] }}</b><small class="table-subline">{{ member['email'] }}</small></span></div></td>
+              <td>{{ member['created_at'] }}</td>
+              <td><span class="member-account-state {% if not member['is_active'] %}member-suspended{% endif %}"><i></i>{{ 'Active' if member['is_active'] else 'Suspended' }}</span></td>
+              <td><form method="post" class="table-action-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="member_id" value="{{ member['id'] }}">
+                {% if member['is_active'] %}<button class="table-action table-suspend" name="action" value="suspend" type="submit">Suspend account</button>{% else %}<button class="table-action table-restore" name="action" value="restore" type="submit">Restore account</button>{% endif %}
+              </form></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table></div>
+    {% else %}
+      <div class="admin-empty">No student accounts have been registered yet.</div>
+    {% endif %}
+  </section>
+  <p class="admin-caution"><span aria-hidden="true">i</span> Administrator accounts are set up from the terminal and are not managed on this page.</p>
+</section>
+{% endblock %}

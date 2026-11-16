@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Account Security · Recovery Code{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-backdrop"></div>
+  <section class="auth-card" style="max-width: 580px;">
+    <a class="auth-back" href="{{ url_for('my_reports') }}"><span aria-hidden="true">←</span> Back to My Reports</a>
+    <div class="auth-icon auth-icon-blue" aria-hidden="true">
+      <svg viewBox="0 0 32 32" aria-hidden="true" style="width:24px;height:24px;display:inline-block;vertical-align:middle;"><rect x="7" y="13" width="18" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 13V9a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+    </div>
+
+    <div class="eyebrow"><span class="eyebrow-line"></span> Account security</div>
+    <h1>Password Recovery Code</h1>
+
+    {% if has_code %}
+      <div class="alert-box alert-box-success">
+        <div class="alert-box-title">
+          <span aria-hidden="true">✓</span> Recovery Code Active
+        </div>
+        <p class="alert-box-text">
+          Your account has an active recovery code. Remember that CampusFind only stores an encrypted hash for your privacy, so the plaintext code cannot be retrieved.
+        </p>
+      </div>
+      <p class="auth-intro">
+        If you have lost your recovery code or want to cycle it for added security, you can generate a replacement below. <strong>Generating a new code will immediately invalidate your previous code.</strong>
+      </p>
+    {% else %}
+      <div class="alert-box alert-box-warning">
+        <div class="alert-box-title">
+          <span aria-hidden="true">⚠️</span> No Recovery Code Found
+        </div>
+        <p class="alert-box-text">
+          You do not have a recovery code set up yet. Generate your code now so you can regain access to your account if you ever forget your password.
+        </p>
+      </div>
+      <p class="auth-intro">
+        Enter your current account password to verify your identity and generate your unique recovery code.
+      </p>
+    {% endif %}
+
+    <form method="post" class="form-stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <label class="form-field">
+        <span>Current Password</span>
+        <input type="password" name="current_password" autocomplete="current-password" placeholder="Enter your current password" required>
+        <small class="field-hint">Required to verify your identity before generating a code.</small>
+      </label>
+
+      <button class="button button-primary button-full" type="submit">
+        {% if has_code %}
+          Generate Replacement Code <span aria-hidden="true">→</span>
+        {% else %}
+          Generate My First Recovery Code <span aria-hidden="true">→</span>
+        {% endif %}
+      </button>
+    </form>
+
+    <div class="auth-private" style="margin-top: 1.5rem;">
+      <span class="tiny-lock" aria-hidden="true">◆</span> Password verification prevents unauthorized recovery code modifications.
+    </div>
+  </section>
+
+  <aside class="auth-aside">
+    <div class="aside-orb"></div>
+    <div class="aside-quote-mark">“</div>
+    <blockquote>Safety and independence.</blockquote>
+    <p>Recovery codes ensure that only you can regain access to your reports, messages, and student account.</p>
+    <div class="aside-signature"><span class="aside-underline"></span> CampusFind Account Security</div>
+  </aside>
+</div>
+{% endblock %}

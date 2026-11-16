@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}My reports{% endblock %}
+{% block content %}
+<section class="page-width dashboard-page">
+  <div class="dashboard-heading">
+    <div>
+      <div class="eyebrow"><span class="eyebrow-line"></span> Your campus activity</div>
+      <h1>My reports<span class="heading-period">.</span></h1>
+      <p>Keep your reports up to date so your community can help.</p>
+    </div>
+    <a class="button button-primary" href="{{ url_for('create_item') }}"><span class="button-plus">+</span> New report</a>
+  </div>
+  <div class="member-quick-links">
+    <a href="{{ url_for('inbox') }}"><span class="quick-link-icon quick-inbox" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m4 7 8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><b>Private inbox</b><small>Contact requests stay between you and the other student.</small></span><span class="quick-arrow">→</span></a>
+  </div>
+  {% if items %}
+    <div class="my-report-list">
+      {% for item in items %}
+        <article class="my-report-row {% if item['is_hidden'] %}report-hidden{% endif %}">
+          <a class="report-thumb" href="{{ url_for('item_detail', item_id=item['id']) }}">
+            {% if item['image_filename'] %}<img src="{{ url_for('static', filename='uploads/' ~ item['image_filename']) }}" alt="">
+            {% else %}<span class="report-thumb-symbol" aria-hidden="true">{{ 'L' if item['kind'] == 'lost' else 'F' }}</span>{% endif %}
+          </a>
+          <div class="my-report-main">
+            <div class="my-report-tags"><span class="item-kind kind-{{ item['kind'] }}">{{ 'Lost' if item['kind'] == 'lost' else 'Found' }}</span><span class="status-chip status-{{ item['status'] }}">{{ 'Returned' if item['status'] == 'returned' else ('Found' if item['status'] == 'found' else 'Still looking') }}</span>{% if item['is_hidden'] %}<span class="hidden-chip">Hidden by admin</span>{% endif %}</div>
+            <a class="my-report-title" href="{{ url_for('item_detail', item_id=item['id']) }}">{{ item['title'] }}</a>
+            <div class="my-report-meta"><span>{{ item['category'] }}</span><span>{{ item['location'] }}</span><span>{{ item['item_date'] }}</span></div>
+          </div>
+          <div class="report-actions">
+            {% if not item['is_hidden'] %}<a class="report-action" href="{{ url_for('edit_item', item_id=item['id']) }}">Edit</a>{% endif %}
+            {% if not item['is_hidden'] and item['status'] != 'returned' %}
+              <form method="post" action="{{ url_for('update_item_status', item_id=item['id']) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="report-action report-action-primary" type="submit">{{ 'Mark as found' if item['status'] == 'active' else 'Mark returned' }}</button>
+              </form>
+            {% endif %}
+            <form method="post" action="{{ url_for('delete_item', item_id=item['id']) }}" data-confirm="Delete this report? This cannot be undone.">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="report-action report-action-danger" type="submit">Delete</button>
+            </form>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="my-reports-empty">
+      <div class="empty-dashboard-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48"><rect x="10" y="8" width="28" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M17 18h14M17 25h14M17 32h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="36" cy="36" r="8" fill="#fff" stroke="currentColor" stroke-width="2"/><path d="M36 32v8m-4-4h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </div>
+      <h2>Your reports will live here.</h2>
+      <p>Share a lost or found item, then check back for private messages and updates.</p>
+      <a class="button button-primary" href="{{ url_for('create_item') }}">Create your first report <span aria-hidden="true">→</span></a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

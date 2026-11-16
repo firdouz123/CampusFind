@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Find what matters{% endblock %}
+{% block content %}
+<section class="home-hero">
+  <div class="hero-orbit hero-orbit-one"></div>
+  <div class="hero-orbit hero-orbit-two"></div>
+  <div class="hero-content page-width">
+    <div class="hero-copy">
+      <div class="eyebrow eyebrow-light"><span class="eyebrow-line"></span> Your campus, looking out for you</div>
+      <h1>Lost something?<br><span>Let’s bring it home.</span></h1>
+      <p>One campus community. One better chance of finding what matters.</p>
+      <div class="hero-actions">
+        {% if g.user %}
+          <a class="button button-white" href="{{ url_for('create_item') }}">
+            <span class="button-plus">+</span> Post a report
+          </a>
+        {% else %}
+          <a class="button button-white" href="{{ url_for('register') }}">Join CampusFind <span aria-hidden="true">→</span></a>
+          <a class="hero-login" href="{{ url_for('login') }}">Already a member? Sign in</a>
+        {% endif %}
+      </div>
+      <div class="hero-proof">
+        <span class="proof-icon" aria-hidden="true">
+          <svg viewBox="0 0 20 20"><path d="M10 2.2 16 4.5v4.3c0 4.1-2.5 7.1-6 9-3.5-1.9-6-4.9-6-9V4.5l6-2.3Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m7 9.8 2 2 4-4.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span>Private contact. Campus-wide kindness.</span>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="art-sun"></div>
+      <div class="art-card art-card-back">
+        <span class="art-card-dot"></span><span class="art-line art-line-short"></span><span class="art-line"></span>
+      </div>
+      <div class="art-card art-card-main">
+        <div class="art-item-icon">
+          <svg viewBox="0 0 64 64"><rect x="14" y="8" width="36" height="48" rx="7" fill="#F5F0F7"/><rect x="19" y="14" width="26" height="34" rx="3" fill="#512D59"/><path d="M25 51h14" stroke="#B58AB8" stroke-width="3" stroke-linecap="round"/><circle cx="32" cy="43" r="1.7" fill="#E5D9E9"/></svg>
+        </div>
+        <div class="art-card-label">FOUND NEAR THE LIBRARY</div>
+        <div class="art-line art-line-title"></div>
+        <div class="art-line art-line-short"></div>
+        <div class="art-card-bottom"><span class="art-tag">Electronics</span><span class="art-check">✓</span></div>
+      </div>
+      <div class="art-note"><span class="note-check">✓</span><span><b>It’s back where it belongs.</b><small>One less thing to worry about.</small></span></div>
+      <div class="art-sparkle sparkle-one">✳</div>
+      <div class="art-sparkle sparkle-two">✦</div>
+    </div>
+  </div>
+</section>
+
+<section class="search-wrap page-width" aria-label="Search reports">
+  <form class="search-panel" method="get" action="{{ url_for('home') }}">
+    <div class="search-main">
+      <label class="search-icon" for="search-q" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.2 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </label>
+      <input id="search-q" type="search" name="q" value="{{ query }}" placeholder="Search an item, like “blue backpack”">
+    </div>
+    <label class="filter-field">
+      <span>Category</span>
+      <select name="category">
+        <option value="">All categories</option>
+        {% for category in categories %}
+          <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="filter-field">
+      <span>Campus location</span>
+      <select name="location">
+        <option value="">Everywhere</option>
+        {% for location in locations %}
+          <option value="{{ location['location'] }}" {% if selected_location == location['location'] %}selected{% endif %}>{{ location['location'] }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button class="button button-primary search-button" type="submit">Search</button>
+  </form>
+  {% if query or selected_category or selected_location %}
+    <div class="search-summary">
+      Showing matches
+      {% if query %}for <strong>“{{ query }}”</strong>{% endif %}
+      {% if selected_category %}<span class="summary-chip">{{ selected_category }}</span>{% endif %}
+      {% if selected_location %}<span class="summary-chip">{{ selected_location }}</span>{% endif %}
+      <a href="{{ url_for('home') }}">Clear filters</a>
+    </div>
+  {% endif %}
+</section>
+
+<div class="page-width discovery">
+  <section class="listing-section">
+    <div class="section-heading">
+      <div>
+        <div class="eyebrow"><span class="eyebrow-line"></span> Still looking</div>
+        <h2>Lost items <span class="count-pill">{{ lost_items|length }}</span></h2>
+        <p>Items their owners are hoping to find.</p>
+      </div>
+      <a class="text-link" href="{{ url_for('home', q=query, category=selected_category, location=selected_location) }}#lost-items">View reports <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="item-grid" id="lost-items">
+      {% for item in lost_items %}
+        {% include "_item_card.html" %}
+      {% else %}
+        <div class="empty-state">
+          <span class="empty-symbol empty-search" aria-hidden="true">?</span>
+          <div><h3>{% if query or selected_category or selected_location %}No lost items match{% else %}No active lost reports{% endif %}</h3><p>{% if query or selected_category or selected_location %}Try a different name, category, or location.{% else %}If you lost something, a quick report gives it a better chance of coming home.{% endif %}</p></div>
+          {% if g.user %}<a class="text-link" href="{{ url_for('create_item') }}?kind=lost">Report a lost item <span aria-hidden="true">→</span></a>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="listing-section">
+    <div class="section-heading">
+      <div>
+        <div class="eyebrow eyebrow-green"><span class="eyebrow-line"></span> Found on campus</div>
+        <h2>Found items <span class="count-pill count-green">{{ found_items|length }}</span></h2>
+        <p>Good finds, shared by your campus community.</p>
+      </div>
+      <a class="text-link" href="{{ url_for('home', q=query, category=selected_category, location=selected_location) }}#found-items">View reports <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="item-grid" id="found-items">
+      {% for item in found_items %}
+        {% include "_item_card.html" %}
+      {% else %}
+        <div class="empty-state">
+          <span class="empty-symbol empty-leaf" aria-hidden="true">✓</span>
+          <div><h3>{% if query or selected_category or selected_location %}No found items match{% else %}Nothing found just yet{% endif %}</h3><p>{% if query or selected_category or selected_location %}Try broadening the filters above.{% else %}Found something? Share it here and help someone get it back.{% endif %}</p></div>
+          {% if g.user %}<a class="text-link" href="{{ url_for('create_item') }}?kind=found">Report a found item <span aria-hidden="true">→</span></a>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="listing-section returned-section">
+    <div class="section-heading">
+      <div>
+        <div class="eyebrow eyebrow-violet"><span class="eyebrow-line"></span> Little wins</div>
+        <h2>Returned items <span class="count-pill count-violet">{{ returned_items|length }}</span></h2>
+        <p>Back in the right hands, thanks to the community.</p>
+      </div>
+    </div>
+    <div class="item-grid">
+      {% for item in returned_items %}
+        {% include "_item_card.html" %}
+      {% else %}
+        <div class="empty-state empty-state-quiet">
+          <span class="empty-symbol empty-returned" aria-hidden="true">↗</span>
+          <div><h3>No returned items yet</h3><p>We’ll celebrate the first campus reunion right here.</p></div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="kindness-banner">
+    <div class="kindness-mark" aria-hidden="true">
+      <svg viewBox="0 0 48 48"><path d="M24 39s-14-8.7-14-19a8 8 0 0 1 14-5.2A8 8 0 0 1 38 20c0 10.3-14 19-14 19Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M17 25h4l2-5 3 9 2-4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div><span class="eyebrow eyebrow-light"><span class="eyebrow-line"></span> Campus kindness</span><h2>Found it? Make someone’s day.</h2><p>Every report brings a lost item a little closer to home.</p></div>
+    {% if g.user %}<a class="button button-white" href="{{ url_for('create_item') }}?kind=found">Share a found item <span aria-hidden="true">→</span></a>{% else %}<a class="button button-white" href="{{ url_for('register') }}">Join the community <span aria-hidden="true">→</span></a>{% endif %}
+  </section>
+</div>
+{% endblock %}

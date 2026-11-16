@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ item['title'] }}{% endblock %}
+{% block content %}
+<section class="page-width detail-page">
+  <a class="back-link" href="{{ url_for('my_reports') if g.user and g.user['id'] == item['owner_id'] else url_for('home') }}"><span aria-hidden="true">←</span> {{ 'Back to my reports' if g.user and g.user['id'] == item['owner_id'] else 'Back to browsing' }}</a>
+  {% if item['is_hidden'] %}<div class="moderation-note">This report is hidden from students and visible only to its owner and administrators.</div>{% endif %}
+  <div class="detail-layout">
+    <div class="detail-visual">
+      {% if item['image_filename'] %}
+        <img class="detail-photo" src="{{ url_for('static', filename='uploads/' ~ item['image_filename']) }}" alt="{{ item['title'] }}">
+      {% else %}
+        <div class="detail-placeholder">
+          <span class="detail-placeholder-badge">{{ item['category'] }}</span>
+          <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" stroke-width="2"/><path d="M50 28v44M28 50h44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span class="detail-placeholder-caption">No photo was added to this report</span>
+        </div>
+      {% endif %}
+      <div class="detail-safety"><span class="safety-shield" aria-hidden="true">✓</span><span><b>Your details stay private.</b><small>Contact requests do not reveal email addresses.</small></span></div>
+    </div>
+    <div class="detail-info">
+      <div class="detail-tags"><span class="item-kind kind-{{ item['kind'] }}">{{ 'Lost report' if item['kind'] == 'lost' else 'Found report' }}</span><span class="detail-category">{{ item['category'] }}</span><span class="status-chip status-{{ item['status'] }}">{{ 'Returned' if item['status'] == 'returned' else ('Found' if item['status'] == 'found' else 'Still looking') }}</span></div>
+      <h1>{{ item['title'] }}</h1>
+      <p class="detail-description">{{ item['description'] }}</p>
+      <div class="detail-facts">
+        <div class="detail-fact">
+          <span class="fact-icon" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M16 8c0 4-6 10-6 10S4 12 4 8a6 6 0 1 1 12 0Z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>
+          <div><small>Last seen at</small><b>{{ item['location'] }}</b></div>
+        </div>
+        <div class="detail-fact">
+          <span class="fact-icon fact-calendar" aria-hidden="true"><svg viewBox="0 0 20 20"><rect x="3.5" y="5" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 3v4m7-4v4M4 8.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+          <div><small>Date {{ 'lost' if item['kind'] == 'lost' else 'found' }}</small><b>{{ item['item_date'] }}</b></div>
+        </div>
+        <div class="detail-fact">
+          <span class="fact-icon fact-person" aria-hidden="true"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 17a6 6 0 0 1 12 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+          <div><small>Posted by</small><b>Campus member</b></div>
+        </div>
+      </div>
+      <div class="detail-actions">
+        {% if g.user and g.user['id'] == item['owner_id'] %}
+          <a class="button button-primary" href="{{ url_for('edit_item', item_id=item['id']) }}">Edit report</a>
+          <a class="button button-quiet" href="{{ url_for('my_reports') }}">Manage reports</a>
+        {% elif g.user and item['status'] != 'returned' and not item['is_hidden'] %}
+          <a class="button button-primary" href="{{ url_for('contact_owner', item_id=item['id']) }}">Send a private message <span aria-hidden="true">→</span></a>
+        {% elif not g.user and item['status'] != 'returned' %}
+          <a class="button button-primary" href="{{ url_for('login', next=url_for('contact_owner', item_id=item['id'])) }}">Sign in to contact</a>
+        {% else %}
+          <span class="returned-message"><span aria-hidden="true">✓</span> This item has been returned.</span>
+        {% endif %}
+      </div>
+      <p class="detail-privacy-note"><span aria-hidden="true">◆</span> CampusFind keeps your email private. Messages go through your inbox.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}
